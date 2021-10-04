@@ -2,26 +2,30 @@
   "name": "vue3-ts-tailwind-starter",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
     "build": "vite build",
-    "start": "npm run dev",
     "lint": "eslint . --ext .js,.ts,.vue",
-    "lint:fix": "eslint . --ext .js,.ts,.vue --fix"
+    "dev": "vite",
+    "lint:fix": "eslint . --ext .js,.ts,.vue --fix",
+    "start": "npm run dev"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.2.1",
     "@tailwindcss/typography": "^0.4.0",
+    "@types/vuelidate": "^0.7.15",
     "@vitejs/plugin-vue": "^1.1.0",
     "axios": "^0.21.4",
     "tailwindcss": "^2.0.2",
     "vue": "^3.0.0",
     "vue-router": "^4.0.2",
+    "vuelidate": "^0.7.6",
+    "vuex": "^4.0.0-0",
     "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
     "@types/node": "^16.10.1",
     "@typescript-eslint/eslint-plugin": "^4.14.0",
     "@typescript-eslint/parser": "^4.14.0",
+    "@vue/cli-plugin-vuex": "^4.5.13",
     "@vue/compiler-sfc": "^3.0.5",
     "@vue/eslint-config-typescript": "^7.0.0",
     "autoprefixer": "^10.2.3",

@@ -35,6 +35,7 @@
                     border-b-2 border-gray-100
                     focus:text-gray-500 focus:outline-none focus:border-gray-200"
             required
+            @input="validateEmail"
           >
 
           <!-- Password Input -->
@@ -54,10 +55,11 @@
                     border-b-2 border-gray-100
                     focus:text-gray-500 focus:outline-none focus:border-gray-200"
             required
+            @input="validatePassword"
           >
 
           <!-- Auth Buttton -->
-          <button
+          <button 
             type="submit"
             class="w-full py-3 mt-10 bg-gray-800 rounded-sm
                     font-medium text-white uppercase
@@ -65,10 +67,6 @@
           >
             Login
           </button>
-          <p v-if="msg">
-            {{ msg }}
-          </p>
-
           <!-- Another Auth Routes -->
           <div class="sm:flex sm:flex-wrap mt-8 sm:mb-4 text-sm text-center">
             <a
@@ -88,7 +86,7 @@
             >
               <router-link to="/signup">
                 Create Account
-              </router-link>.
+              </router-link>
             </a>
           </div>
         </form>
@@ -97,36 +95,69 @@
   </div>
 </template>
 
+
+
 <script lang="ts">
 import { defineComponent } from 'vue'
 import auth from '../Logic/auth'
+import {mapActions } from 'vuex'
 
 
 export default defineComponent({
   components: {},
   data() {
     return {
-      name: 'Ana',
-      email: 'anayfernandez11@gmail.com',
-      password: '12345678',
+      userEmailValid: false,
+			passwordValid: false,
+      isAuthenticating: false,
+      name: '',
+      email: '',
+      password: '',
       msg:'',
     }
   },
+  /*{{ $store.getters.getToken}}*/
   methods: {
+     validateEmail() {
+      const MinLength = 4
+      const MaxLength = 64
+      const Regex =  /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      this.userEmailValid = Boolean(this.email.length >= MinLength && this.email.length <= MaxLength && Regex.test(this.email))
+    },
+    validatePassword() {
+      const MinLength = 6
+      const MaxLength = 128
+      this.passwordValid = this.password.length >= MinLength && this.password.length <= MaxLength
+    },
+    ...mapActions(['login']),
     async signIn() {
-      try {
-        const credentials = {
-          email: this.email,
-          password: this.password,
+       console.log(this.userEmailValid, this.passwordValid)
+      if (this.userEmailValid && this.passwordValid && !this.isAuthenticating ) {
+        
+        this.isAuthenticating = true
+        try {
+          const credentials = {
+            email: this.email,
+            password: this.password,
+          }
+          
+          const response = await auth.login(credentials)
+          console.log(response)
+          this.msg = response.meta.message
+          const token = response.token
+          if (token && token !== null && token !== '' ) {
+            const meta = response.meta
+            this.login({token, meta})
+            console.log('correcto')
+            this.$router.push('/dashboard')
+          } else {
+            console.log('Usuario o contraseña incorrectos')
+            this.msg = 'Usuario o contraseña incorrectos'
+          }
+          
+        } catch (error) {
+          this.msg = error.message
         }
-        const response = await auth.login(credentials)
-        console.log(response)
-        this.msg = response.meta.message
-        const token = response.token
-        const meta = response.meta
-        $store.dispatch('login', {token, meta})
-      } catch (error) {
-        this.msg = error.message
       }
         /*console.log(this.email, this.password)
 
@@ -136,8 +167,8 @@ export default defineComponent({
         })
         this.$router.push('/dashboard')
         console.log(response);*/
-        
-         },
+      this.isAuthenticating = false
+    },
   },
 
 })

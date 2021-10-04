@@ -18,6 +18,12 @@
           class="mt-10"
           @submit.prevent="signUp"
         >
+          <p
+            ref="errorMessage"
+            class="error-message hidden"
+          >
+            {{ errorMessage }}
+          </p>
           <!-- Name Input -->
           <label
             for="email"
@@ -35,6 +41,7 @@
                     border-b-2 border-gray-100
                     focus:text-gray-500 focus:outline-none focus:border-gray-200"
             required
+            @input="validateName"
           >
           <!-- Email Input -->
           <label
@@ -53,8 +60,8 @@
                     border-b-2 border-gray-100
                     focus:text-gray-500 focus:outline-none focus:border-gray-200"
             required
+            @input="validateEmail"
           >
-
           <!-- Password Input -->
           <label
             for="password"
@@ -72,6 +79,7 @@
                     border-b-2 border-gray-100
                     focus:text-gray-500 focus:outline-none focus:border-gray-200"
             required
+            @input="validatePassword"
           >
           <!-- Auth Buttton -->
           <button
@@ -122,39 +130,65 @@ export default defineComponent({
   components: {},
   data() {
     return {
-      name: 'Ana',
-      email: 'anayfernandez11@gmail.com',
-      password: '12345678',
+      nameValid: false,
+      emailValid: false,
+      passwordValid: false,
+      isRegister: false,
+      name: '',
+      email: '',
+      password: '',
+      msg:'',
     }
   },
  
   methods: {
-    async signUp() {
-        console.log(this.name, this.email, this.password)
-
-        const response = await auth.register({
-            name: this.name,
-            email: this.email,
-            password: this.password,
-        })
-        this.$router.push('/')
-        console.log(response)
-        /*
-         axios.defaults.baseURL = config.BASE_URL
-        axios.defaults.headers.get['Accept'] = 'application/json'
-        axios.defaults.headers.common['Content-Type'] = 'application/json'
-        axios.post('/users/signup', {
-            name: this.name,
-            email: this.email,
-            password: this.password
-        }).then( response => {
-            console.log(response)
-        }).catch( error => {
-            console.log(error)
-        })
-        */
+    validateName() {
+      const MinLength = 4
+      const MaxLength = 64
+      this.nameValid = this.name.length >= MinLength && this.name.length <= MaxLength
+      
     },
+    validateEmail() {
+       const MinLength = 4
+      const MaxLength = 64
+      const Regex = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
+      this.emailValid = Boolean(this.email.length >= MinLength && this.email.length <= MaxLength && Regex.test(this.email))
+    },
+    validatePassword() {
+      const MinLength = 6
+      const MaxLength = 128
+      this.passwordValid = this.password.length >= MinLength && this.password.length <= MaxLength
+    },
+    async signUp() {
+      console.log(this.nameValid, this.emailValid, this.passwordValid)
+      if(this.nameValid && this.emailValid && this.passwordValid && !this.isRegister) {
+      this.isRegister = true 
+      console.log(this.nameValid, this.emailValid, this.passwordValid)
+        try{
+          const credentials = {
+            name: this.name,
+            email: this.email,
+            password:this.password,
+          }
+          
+
+          const response = await auth.register(credentials)
+          console.log('Error: ', response)
+          this.$router.push('/')
+          console.log(response)
+        } catch (error) {
+          this.msg = error.message
+          console.log('Error: ', error)
+        }
+      }
+      this.isRegister = false
+        
+    },
+
   },
 
 })
 </script>
+<style>
+
+</style>

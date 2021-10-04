@@ -7,10 +7,6 @@ export default {
         return response.data
     },
     async register(userCredentials:any) {
-
-
-
-        console.log(userCredentials)
         const response = await axios.post('/users/signup', userCredentials)
         return response
         
